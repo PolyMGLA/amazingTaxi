@@ -41,10 +41,20 @@ async def register(r: Request):
 async def get_order(r: Request):
     body = await r.json()
 
-    data = GET_ORDER(cur, body["order_id"])
+    data = GET_ORDER(cur, body["id_order"])
     match len(data):
         case 0: return Response("gay?", status_code=404)
         case _: return JSONResponse(data, status_code=200)
+
+@app.get("/orders/my")
+async def get_my_order(r: Request):
+    body = await r.json()
+
+    data = GET_MY_ORDERS(cur, body["id_user"])
+    match len(data):
+        case 0: return Response("gay?", status_code=404)
+        case _: return JSONResponse(data, status_code=200)
+
 
 if __name__ == "__main__" or True:
     conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASSWORD)
@@ -54,7 +64,7 @@ if __name__ == "__main__" or True:
     INIT_SCHEME(cur)
     REGISTER_USER(cur, RegUserModel("Петров Петр Петрррр", "88005553535"))
     CREATE_ORDER(cur, CreateOrderModel(1, "Ленина 52", "Ленина 42"))
-    cur.execute("SELECT * FROM blinov_oboldin.Users")
+    cur.execute("SELECT * FROM blinov_oboldin.Order")
     logging.debug(cur.fetchall())
 
     # cur.close()

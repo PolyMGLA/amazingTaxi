@@ -83,7 +83,7 @@ INSERT INTO blinov_oboldin.Users (full_name, phone) VALUES (\'{model.full_name}\
 
 
 def CREATE_ORDER(cur, model: CreateOrderModel) -> int:
-    cur.execute(f"SELECT * FROM blinov_oboldin.Users WHERE Users.id_user={model.id_user}")
+    cur.execute(f"SELECT * FROM blinov_oboldin.Users WHERE blinov_oboldin.Users.id_user={model.id_user}")
     if cur.pgresult_ptr is None or cur.fetchall() == []: return 1
 
     cur.execute(f"""
@@ -94,8 +94,14 @@ INSERT INTO blinov_oboldin.Order (id_user, start_addr, end_addr, order_time, sta
 
     return 0
 
-def GET_ORDER(cur, order_id: int) -> OrderStatusModel:
-    cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={order_id}")
-    if cur.pgresult_ptr is None or cur.fetchall() == []: return ""
+def GET_ORDER(cur, id_order: int) -> tuple[list]:
+    cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={id_order} AND blinov_oboldin.Order.status!='done'")
+    if cur.pgresult_ptr is None: return ""
+
+    return cur.fetchall()
+
+def GET_MY_ORDERS(cur, id_user: int) -> tuple[list]:
+    cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_user={id_user} AND blinov_oboldin.Order.status!='done'")
+    if cur.pgresult_ptr is None: return ""
 
     return cur.fetchall()
