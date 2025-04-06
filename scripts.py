@@ -49,24 +49,25 @@ CREATE TABLE IF NOT EXISTS blinov_oboldin.Order
 );
 """
 
-def INIT_SCHEME(cur):
+def SQL_init_scheme(cur):
     cur.execute(SCHEME_QUERY)
     cur.execute(TABLE_QUERY)
+    logging.info("db initialized")
 
     if cur.pgresult_ptr is not None: logging.debug(cur.fetchall())
 
-def DROP_ALL_SHIT(cur):
+def SQL_drop_all_shit(cur):
     """
     Дропает все данные, осторожно
     """
     k = input("Дропнуть? (y) ")
     if k != "y": return None
     cur.execute("DROP SCHEMA IF EXISTS blinov_oboldin CASCADE")
+    logging.warning("db dropped")
 
     if cur.pgresult_ptr is not None: logging.debug(cur.fetchall())
 
-
-def REGISTER_USER(cur, model: RegUserModel) -> int:
+def SQL_register_user(cur, model: RegUserModel) -> int:
     try:
         cur.execute(f"""
 INSERT INTO blinov_oboldin.Users (full_name, phone) VALUES (\'{model.full_name}\', {model.phone});
@@ -82,7 +83,7 @@ INSERT INTO blinov_oboldin.Users (full_name, phone) VALUES (\'{model.full_name}\
         return 2
 
 
-def CREATE_ORDER(cur, model: CreateOrderModel) -> int:
+def SQL_create_order(cur, model: CreateOrderModel) -> int:
     cur.execute(f"SELECT * FROM blinov_oboldin.Users WHERE blinov_oboldin.Users.id_user={model.id_user}")
     if cur.pgresult_ptr is None or cur.fetchall() == []: return 1
 
@@ -94,14 +95,27 @@ INSERT INTO blinov_oboldin.Order (id_user, start_addr, end_addr, order_time, sta
 
     return 0
 
-def GET_ORDER(cur, id_order: int) -> tuple[list]:
-    cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={id_order} AND blinov_oboldin.Order.status!='done'")
+def SQL_get_order(cur, id_order: int) -> tuple[list]:
+    cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={id_order}")
     if cur.pgresult_ptr is None: return ""
 
-    return cur.fetchall()
+    return cur.fetchall()[0]
 
-def GET_MY_ORDERS(cur, id_user: int) -> tuple[list]:
+def SQL_get_my_orders(cur, id_user: int) -> tuple[list]:
     cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_user={id_user} AND blinov_oboldin.Order.status!='done'")
     if cur.pgresult_ptr is None: return ""
 
     return cur.fetchall()
+
+def SQL_update_order(cur, model: OrderStatusModel) -> int:
+    cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={model.id_order} AND blinov_oboldin.Order.id_user={model.id_user}")
+    if cur.pgresult_ptr is None: return 1
+    else: cur.fetchall()
+
+    cur.execute(f"""UPDATE blinov_oboldin.Order SET
+                id_shift={model.id_shift},
+                start_addr='{model.start_addr}',
+                end_addr='{model.end_addr}',
+                order_time='{model.order_time}',
+                status='{model.status}'""")
+    return 0

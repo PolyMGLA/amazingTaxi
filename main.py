@@ -16,7 +16,6 @@ DB_NAME = os.getenv("DB_NAME")
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-
 logging.basicConfig(filename="logs.log",
                     filemode='a',
                     format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -32,16 +31,16 @@ async def ping():
 async def register(r: Request):
     model = RegUserModel.load_(await r.json())
 
-    match REGISTER_USER(cur, model):
-        case 0: return Response("ok", status_code=200)
-        case 1: return Response("this user exists", status_code=400)
+    match SQL_register_user(cur, model):
+        case 0: return Response("ok", status_code=201)
+        case 1: return Response("this user exists", status_code=409)
         case _: return Response("internal error", status_code=500)
 
 @app.get("/orders/get")
 async def get_order(r: Request):
     body = await r.json()
 
-    data = GET_ORDER(cur, body["id_order"])
+    data = SQL_get_order(cur, body["id_order"])
     match len(data):
         case 0: return Response("gay?", status_code=404)
         case _: return JSONResponse(data, status_code=200)
@@ -50,22 +49,34 @@ async def get_order(r: Request):
 async def get_my_order(r: Request):
     body = await r.json()
 
-    data = GET_MY_ORDERS(cur, body["id_user"])
+    data = SQL_get_my_orders(cur, body["id_user"])
     match len(data):
         case 0: return Response("gay?", status_code=404)
         case _: return JSONResponse(data, status_code=200)
 
+@app.post("/orders/create")
+async def create_order(r: Request):
+    body = CreateOrderModel.load_(await r.json())
+
+    match SQL_create_order(cur, body):
+        case 0: return Response("ok", status_code=201)
+        case 1: return Response("user doesnt exist", status_code=406)
+        case _: return Response("internal error", status_code=500)
+
+@app.put("/orders/update")
+async def update_order(r: Request):
+    body = OrderStatusModel.load_(await r.json())
+
+    match SQL_update_order(cur, body):
+        case 0: return Response("ok", status_code=200)
+        case 1: return Response("not found", status_code=404)
+        case _: return Response("internal error", status_code=500)
 
 if __name__ == "__main__" or True:
     conn = psycopg2.connect(host=DB_HOST, port=DB_PORT, database=DB_NAME, user=DB_USER, password=DB_PASSWORD)
     conn.autocommit = True
     cur = conn.cursor()
-    # DROP_ALL_SHIT(cur)
-    INIT_SCHEME(cur)
-    REGISTER_USER(cur, RegUserModel("Петров Петр Петрррр", "88005553535"))
-    CREATE_ORDER(cur, CreateOrderModel(1, "Ленина 52", "Ленина 42"))
-    cur.execute("SELECT * FROM blinov_oboldin.Order")
-    logging.debug(cur.fetchall())
+    SQL_init_scheme(cur)
 
     # cur.close()
     # conn.close()
