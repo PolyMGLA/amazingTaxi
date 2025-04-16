@@ -43,7 +43,7 @@ async def get_order(r: Request):
     data = SQL_get_order(cur, body["id_order"])
     match len(data):
         case 0: return Response("gay?", status_code=404)
-        case _: return JSONResponse(data, status_code=200)
+        case _: return JSONResponse(data[0], status_code=200)
 
 @app.get("/orders/my")
 async def get_my_order(r: Request):
@@ -66,6 +66,9 @@ async def create_order(r: Request):
 @app.put("/orders/update")
 async def update_order(r: Request):
     body = OrderStatusModel.load_(await r.json())
+
+    if any(x in body.__dict__ for x in ["start_addr", "end_addr", "order_time"]):
+        return Response("cannot update", status_code=400)
 
     match SQL_update_order(cur, body):
         case 0: return Response("ok", status_code=200)

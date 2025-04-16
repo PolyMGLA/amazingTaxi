@@ -4,6 +4,7 @@
         "caption": "/ping",
         "sequent": [
             {
+                "caption": "test/ping",
                 "method": "get",
                 "endpoint": "/ping",
                 "body": {},
@@ -16,20 +17,32 @@
         "caption": "/users/reg",
         "sequent": [
             {
+                "caption": "test/reg(ok)",
                 "method": "post",
                 "endpoint": "/users/reg",
                 "body": {
-                    "full_name": "Негритос Негрила Негрович",
+                    "full_name": "Иванов Иван Петрович",
                     "phone": "88005553536"
                 },
                 "result": 201
             },
             {
+                "caption": "test/reg(user exists)",
                 "method": "post",
                 "endpoint": "/users/reg",
                 "body": {
-                    "full_name": "Негритос Негрила Негрович",
+                    "full_name": "Иванов Иван Петрович",
                     "phone": "88005553536"
+                },
+                "result": 409
+            },
+            {
+                "caption": "test/reg(user exists)",
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Иванов Иван Петрович",
+                    "phone": "+7 800 555 35-36"
                 },
                 "result": 409
             }
@@ -40,15 +53,17 @@
         "caption": "/orders/create",
         "sequent": [
             {
+                "caption": "test/reg(ok)",
                 "method": "post",
                 "endpoint": "/users/reg",
                 "body": {
-                    "full_name": "Негритос Негрила Негрович",
+                    "full_name": "Иванов Иван Петрович",
                     "phone": "88005553536"
                 },
                 "result": 201
             },
             {
+                "caption": "test/order(ok)",
                 "method": "post",
                 "endpoint": "/orders/create",
                 "body": {
@@ -62,18 +77,37 @@
     },
     {
         "test_id": 4,
+        "caption": "/orders/create for non existent user",
+        "sequent": [
+            {
+                "caption": "test/order(no user)",
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 406
+            }
+        ]
+    },
+    {
+        "test_id": 5,
         "caption": "/orders/get",
         "sequent": [
             {
+                "caption": "test/reg(ok)",
                 "method": "post",
                 "endpoint": "/users/reg",
                 "body": {
-                    "full_name": "Негритос Негрила Негрович",
+                    "full_name": "Иванов Иван Петрович",
                     "phone": "88005553536"
                 },
                 "result": 201
             },
             {
+                "caption": "test/order(ok)",
                 "method": "post",
                 "endpoint": "/orders/create",
                 "body": {
@@ -84,6 +118,7 @@
                 "result": 201
             },
             {
+                "caption": "test/get_order(ok)",
                 "method": "get",
                 "endpoint": "/orders/get",
                 "body": {
@@ -94,19 +129,36 @@
         ]
     },
     {
-        "test_id": 5,
+        "test_id": 6,
+        "caption": "/orders/get non existent order",
+        "sequent": [
+            {
+                "caption": "test/get_order(ok)",
+                "method": "get",
+                "endpoint": "/orders/get",
+                "body": {
+                    "id_order": 1
+                },
+                "result": 404
+            }
+        ]
+    },
+    {
+        "test_id": 7,
         "caption": "/orders/my",
         "sequent": [
             {
+                "caption": "test/reg(ok)",
                 "method": "post",
                 "endpoint": "/users/reg",
                 "body": {
-                    "full_name": "Негритос Негрила Негрович",
+                    "full_name": "Иванов Иван Петрович",
                     "phone": "88005553536"
                 },
                 "result": 201
             },
             {
+                "caption": "test/order(ok)",
                 "method": "post",
                 "endpoint": "/orders/create",
                 "body": {
@@ -117,6 +169,7 @@
                 "result": 201
             },
             {
+                "caption": "test/order(ok)",
                 "method": "post",
                 "endpoint": "/orders/create",
                 "body": {
@@ -127,6 +180,7 @@
                 "result": 201
             },
             {
+                "caption": "test/get_my_order(ok)",
                 "method": "get",
                 "endpoint": "/orders/my",
                 "body": {
@@ -137,19 +191,36 @@
         ]
     },
     {
-        "test_id": 6,
+        "test_id": 8,
+        "caption": "/orders/my for non existing user",
+        "sequent": [
+            {
+                "caption": "test/get_my_order(ok)",
+                "method": "get",
+                "endpoint": "/orders/my",
+                "body": {
+                    "id_user": 1
+                },
+                "result": 404
+            }
+        ]
+    },
+    {
+        "test_id": 9,
         "caption": "/orders/update",
         "sequent": [
             {
+                "caption": "test/reg(ok)",
                 "method": "post",
                 "endpoint": "/users/reg",
                 "body": {
-                    "full_name": "Негритос Негрила Негрович",
+                    "full_name": "Иванов Иван Петрович",
                     "phone": "88005553536"
                 },
                 "result": 201
             },
             {
+                "caption": "test/order(ok)",
                 "method": "post",
                 "endpoint": "/orders/create",
                 "body": {
@@ -160,6 +231,46 @@
                 "result": 201
             },
             {
+                "caption": "test/update_order(ok)",
+                "method": "put",
+                "endpoint": "/orders/update",
+                "body": {
+                    "id_order": 1,
+                    "id_user": 1,
+                    "id_shift": 1,
+                    "status": "done"
+                },
+                "result": 200
+            }
+        ]
+    },
+    {
+        "test_id": 10,
+        "caption": "/orders/update all data",
+        "sequent": [
+            {
+                "caption": "test/reg(ok)",
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Иванов Иван Петрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "caption": "test/order(ok)",
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            },
+            {
+                "caption": "test/update_order(ok)",
                 "method": "put",
                 "endpoint": "/orders/update",
                 "body": {
@@ -169,6 +280,44 @@
                     "start_addr": "ул. Ленина, 6",
                     "end_addr": "ул. Сталина, 7",
                     "order_time": "2025-04-06 10:52:09.484917",
+                    "status": "done"
+                },
+                "result": 400
+            }
+        ]
+    },
+    {
+        "test_id": 11,
+        "caption": "/orders/update only status",
+        "sequent": [
+            {
+                "caption": "test/reg(ok)",
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Иванов Иван Петрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "caption": "test/order(ok)",
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            },
+            {
+                "caption": "test/update_order(ok)",
+                "method": "put",
+                "endpoint": "/orders/update",
+                "body": {
+                    "id_order": 1,
+                    "id_user": 1,
                     "status": "done"
                 },
                 "result": 200

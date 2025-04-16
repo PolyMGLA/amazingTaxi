@@ -3,51 +3,8 @@ import psycopg2
 from models import RegUserModel, CreateOrderModel, OrderStatusModel
 import logging
 
-SCHEME_QUERY = "CREATE SCHEMA IF NOT EXISTS blinov_oboldin;"
-TABLE_QUERY = """
-CREATE TABLE IF NOT EXISTS blinov_oboldin.Users
-(
-    id_user bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    full_name text COLLATE pg_catalog."default" NOT NULL,
-    phone text COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT user_pkey PRIMARY KEY (id_user),
-    CONSTRAINT name_phone UNIQUE (full_name, phone)
-);
-
-CREATE TABLE IF NOT EXISTS blinov_oboldin.Taxi
-(
-    id_Taxi bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    CONSTRAINT "Taxi_pkey" PRIMARY KEY (id_Taxi)
-);
-
-CREATE TABLE IF NOT EXISTS blinov_oboldin.Driver
-(
-    id_dreiver bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    CONSTRAINT "Driver_pkey" PRIMARY KEY (id_dreiver)
-);
-
-CREATE TABLE IF NOT EXISTS blinov_oboldin.Shift
-(
-    id_shift bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    id_taxi bigint NOT NULL,
-    id_driver bigint NOT NULL,
-    date date NOT NULL,
-    status text COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT "Shift_pkey" PRIMARY KEY (id_shift)
-);
-
-CREATE TABLE IF NOT EXISTS blinov_oboldin.Order
-(
-    id_order bigint NOT NULL GENERATED ALWAYS AS IDENTITY ( INCREMENT 1 START 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1 ),
-    id_user bigint NOT NULL,
-    id_shift bigint,
-    start_addr text COLLATE pg_catalog."default" NOT NULL,
-    end_addr text COLLATE pg_catalog."default" NOT NULL,
-    order_time text COLLATE pg_catalog."default" NOT NULL,
-    status text COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT "Order_pkey" PRIMARY KEY (id_order)
-);
-"""
+with open("migrations.sql", "r") as f:
+    SCHEMA_QUERY = f.read()
 
 __ALL__ = ["SQL_init_schema",
            "SQL_drop_all_shit",
@@ -58,8 +15,7 @@ __ALL__ = ["SQL_init_schema",
            "SQL_update_order"]
 
 def SQL_init_schema(cur):
-    cur.execute(SCHEME_QUERY)
-    cur.execute(TABLE_QUERY)
+    cur.execute(SCHEMA_QUERY)
     logging.info("db initialized")
 
     if cur.pgresult_ptr is not None: logging.debug(cur.fetchall())
@@ -108,7 +64,7 @@ def SQL_get_order(cur, id_order: int) -> tuple[list]:
     cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={id_order}")
     if cur.pgresult_ptr is None: return ""
 
-    return cur.fetchall()[0]
+    return cur.fetchall()
 
 def SQL_get_my_orders(cur, id_user: int) -> tuple[list]:
     cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_user={id_user} AND blinov_oboldin.Order.status!='done'")
@@ -119,12 +75,14 @@ def SQL_get_my_orders(cur, id_user: int) -> tuple[list]:
 def SQL_update_order(cur, model: OrderStatusModel) -> int:
     cur.execute(f"SELECT * FROM blinov_oboldin.Order WHERE blinov_oboldin.Order.id_order={model.id_order} AND blinov_oboldin.Order.id_user={model.id_user}")
     if cur.pgresult_ptr is None: return 1
-    else: cur.fetchall()
+
+    line = cur.fetchall()[0]
+    curr_id_shift, curr_status = line[2], line[6]
+
+    if model.id_shift is None: model.id_shift = curr_id_shift
+    if model.status is None: model.status = curr_status
 
     cur.execute(f"""UPDATE blinov_oboldin.Order SET
                 id_shift={model.id_shift},
-                start_addr='{model.start_addr}',
-                end_addr='{model.end_addr}',
-                order_time='{model.order_time}',
                 status='{model.status}'""")
     return 0
