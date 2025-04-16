@@ -49,21 +49,30 @@ CREATE TABLE IF NOT EXISTS blinov_oboldin.Order
 );
 """
 
-def SQL_init_scheme(cur):
+__ALL__ = ["SQL_init_schema",
+           "SQL_drop_all_shit",
+           "SQL_register_user",
+           "SQL_create_order",
+           "SQL_get_order",
+           "SQL_get_my_orders",
+           "SQL_update_order"]
+
+def SQL_init_schema(cur):
     cur.execute(SCHEME_QUERY)
     cur.execute(TABLE_QUERY)
     logging.info("db initialized")
 
     if cur.pgresult_ptr is not None: logging.debug(cur.fetchall())
 
-def SQL_drop_all_shit(cur):
+def SQL_drop_all_shit(cur, confirm: bool = False, warnings: bool = True):
     """
     Дропает все данные, осторожно
     """
-    k = input("Дропнуть? (y) ")
-    if k != "y": return None
+    if not confirm: 
+        k = input("Дропнуть? (y) ")
+        if k != "y": return None
     cur.execute("DROP SCHEMA IF EXISTS blinov_oboldin CASCADE")
-    logging.warning("db dropped")
+    if warnings: logging.warning("db dropped")
 
     if cur.pgresult_ptr is not None: logging.debug(cur.fetchall())
 

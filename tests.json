@@ -1,0 +1,178 @@
+[
+    {
+        "test_id": 1,
+        "caption": "/ping",
+        "sequent": [
+            {
+                "method": "get",
+                "endpoint": "/ping",
+                "body": {},
+                "result": 200
+            }
+        ]
+    },
+    {
+        "test_id": 2,
+        "caption": "/users/reg",
+        "sequent": [
+            {
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Негритос Негрила Негрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Негритос Негрила Негрович",
+                    "phone": "88005553536"
+                },
+                "result": 409
+            }
+        ]
+    },
+    {
+        "test_id": 3,
+        "caption": "/orders/create",
+        "sequent": [
+            {
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Негритос Негрила Негрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            }
+        ]
+    },
+    {
+        "test_id": 4,
+        "caption": "/orders/get",
+        "sequent": [
+            {
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Негритос Негрила Негрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            },
+            {
+                "method": "get",
+                "endpoint": "/orders/get",
+                "body": {
+                    "id_order": 1
+                },
+                "result": 200
+            }
+        ]
+    },
+    {
+        "test_id": 5,
+        "caption": "/orders/my",
+        "sequent": [
+            {
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Негритос Негрила Негрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            },
+            {
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            },
+            {
+                "method": "get",
+                "endpoint": "/orders/my",
+                "body": {
+                    "id_user": 1
+                },
+                "result": 200
+            }
+        ]
+    },
+    {
+        "test_id": 6,
+        "caption": "/orders/update",
+        "sequent": [
+            {
+                "method": "post",
+                "endpoint": "/users/reg",
+                "body": {
+                    "full_name": "Негритос Негрила Негрович",
+                    "phone": "88005553536"
+                },
+                "result": 201
+            },
+            {
+                "method": "post",
+                "endpoint": "/orders/create",
+                "body": {
+                    "id_user": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7"
+                },
+                "result": 201
+            },
+            {
+                "method": "put",
+                "endpoint": "/orders/update",
+                "body": {
+                    "id_order": 1,
+                    "id_user": 1,
+                    "id_shift": 1,
+                    "start_addr": "ул. Ленина, 6",
+                    "end_addr": "ул. Сталина, 7",
+                    "order_time": "2025-04-06 10:52:09.484917",
+                    "status": "done"
+                },
+                "result": 200
+            }
+        ]
+    }
+]
